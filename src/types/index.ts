@@ -21,17 +21,8 @@ export interface LargeComponentprops {
 }
 
 export interface SmallComponentprops {
-  cmpclose: () => void;
   video: string;
-  setinitialsize: (e: boolean) => void;
-  data: any;
-  base: string;
-  round: boolean;
-  onlocalchange : () => void;
-  initalanimation : boolean
-  showcross : boolean
-  setShowcross : StateUpdater<boolean>
-
+  handlePopup : (event : MouseEvent) => void;
 }
 
 

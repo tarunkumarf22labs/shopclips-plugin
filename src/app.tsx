@@ -1,402 +1,127 @@
 
-import { useEffect, useRef, useState, JSX } from "uelements";
-import LargeComponent from "./Components/LargeComponent";
-import Modal from "./Components/modal/Modal";
+import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
 import SmallComponent from "./Components/SmallComponent";
-import { useLocalstorage } from "./hook/useLocalstorage";
-import useWindowDimensions from "./hook/useWindowDimensions";
-import { cssvalinterface } from "./types";
+import { Crossicon, Muteicon , UnMuteicon  } from "./assets/Icons";
+
+function sahireducer(state, {type , payload}) {
+   switch (type) {
+    case 'SETTOGGLE':
+          return  { ...state ,  toogleopen : !state.toogleopen }
+    case 'SETVIDEOLENGTH':
+     return { ...state , videolength : payload   }
+    case  "SETToggle" : 
+    return { ...state , ismute : !state.ismute    }
+    }
+}
+
+
+
+const  initialState   = {
+  toogleopen : false,
+  videolength : null,
+  ismute : false, 
+}
+
+
+
+
 
 function App({ dataURL }: { dataURL: string }): JSX.Element {
-  let base = window.location.pathname;
-  let cssval!: cssvalinterface;
-  const [data, setdata] = useState({} as any);
-  const [local, setlocal] = useState({} as any);
-  const [first, setfirst] = useLocalstorage("initialvideo", []);
-  const [timingshow, settimingshow] = useState(true);
-  const [initalanimation, setinitalanimation] = useState(true);
-   const [showcross, setShowcross] = useState(false)
+  
+ const [state,dispatch] = useReducer(sahireducer,initialState);
+ const videoEl = useRef<HTMLVideoElement>(null);
+ const [count, setCount] = useState(0)
 
-  function getingkeys() {
-    let val = JSON.parse(localStorage.getItem("initialvideo")!);
-    if (val?.length) {
-      val.filter((e: any) => {
-        if (e.base === base) {
-          return e?.count;
-        } else {
-          return 0;
-        }
-      });
-    } else {
-      return 0;
-    }
+
+ const  handlePopup  = (event:MouseEvent) : void => {
+    dispatch({
+      type: 'SETTOGGLE',
+      payload: undefined
+    })
   }
 
+const handleLoadedMetadata = () => {
+  const video = videoEl.current!;
+    if (!video) return 
+    video.pause()
+    dispatch({ type : 'SETVIDEOLENGTH' , payload : video.duration })
+  };
+  
+  useEffect(() => {
+    videoEl.current!?.addEventListener("timeupdate", handleTimeUpdate);
+    videoEl.current?.play()
+    return () => {
+      videoEl.current!?.removeEventListener("timeupdate", handleTimeUpdate);  
+    }
+  } ,[state.videolength])
 
 
-   function handlenextkind(data : any ) {
-    let keys = Object.keys(data);
-    let dudefindkey = keys.filter((e) => {
+  const handleTimeUpdate = () => {
+    const progress = (videoEl.current!.currentTime / state.videolength) * 100;
+    setCount(progress);
+  };
 
-      if (e === base) {
+
+  const handleToogle = () => {
+    dispatch({ type : "SETToggle" }  )    
+     if (!state.ismute) {
+      videoEl.current!.muted = true;
+
+     } else {
+      videoEl.current!.muted = false;
+     }
+
+
+  }
+
+   if(state.toogleopen){
+    return(
+       <div>
+         <div className="overlay-thing"></div>
+          <div className="video-box">
+        {state.videolength ?  (
+          <>
+                    <div className="playbar" style={{
+          gridTemplateColumns: ` repeat($1 ,1fr)  `,
+        }}
+            >
+            <div className="playbarinline__wrapper">
+              <div
+                style={{
+                  display: "block !important",
+                  transform: `scaleX(${count/100})`
+                }}
+                className={`playbarinline   `}
+              ></div>
+              <div className="playbarinline__background"></div>
+            </div>
+      </div>
+       <div className="muteop"  onClick={handleToogle}>
+        { !state.ismute ?  <Muteicon/>  :  <UnMuteicon/> }
+       </div>
+       <div className="crossiconop" onClick={handlePopup} >
+        <Crossicon/>
+       </div>
        
-                return e   
-    }
-    } )
-    let log 
-    if(!dudefindkey.length) {
-     log = keys.filter((e) => {
-             if(base.match(e)) {
-                return e 
-             }
-          } )
-      
-    }
-    // if(!dudefindkey.length) {
-    //    return  log?.[1]
-    // } else {
-    //    return dudefindkey[0]
-    // }
-    return dudefindkey[0]
+          </>
+        )  : "" }
+
+            <video ref={videoEl}  src={"https://f22videoplugin.s3.ap-northeast-1.amazonaws.com/lapp/lappintro.mp4"} onLoadedMetadata={handleLoadedMetadata}  autoPlay />
+          </div>
+       </div>
+    )
    }
 
-  useEffect(() => {
-    async function data() {
-      let val = await fetch(dataURL);
-      let data = await val.json();
-      let excatindex = JSON.parse(
-        localStorage.getItem("initialvideo")!
-      )?.filter((e: any) => {
-        if (e.base === base) {
-          return e;
-        } else {
-          return 0;
-        }
-      }); 
-
-
-      let bin = handlenextkind(data)
-      handlestoragevals(data);
-      setdata(data);
-      setlocal(data[bin!][excatindex[0]?.count || 0]);
-    }
-    data();
-  }, []);
-
-  document.documentElement.style.setProperty(
-    "--largecontainer-width",
-    `${local.largecontainerwidth}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--largecontainer-height",
-    `${local.largecontainerheight}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--bottom-css",
-    `${local.bottomcss}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--width-smallbox",
-    `${local.widthsmallbox}px`
-  );
-  document.documentElement.style.setProperty(
-    "--height-smallbox",
-    `${local.heightsmallbox}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--text-color",
-    `${local.textcolor}`
-  );
-
-  document.documentElement.style.setProperty(
-    " --row-position",
-    `${local.rowposition}`
-  );
-
-  document.documentElement.style.setProperty(
-    "--padding-x",
-    `${local.paddingx}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--padding-y",
-    `${local.paddingy}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--row-position",
-    `${local.rowposition}`
-  );
-
-  document.documentElement.style.setProperty(
-    "--grid-gap",
-    `${local.gridgap}px`
-  );      
-
-
-  document.documentElement.style.setProperty(
-    "--small-closebuttonheight",
-    `${local.closebuttonheight}px`
-  );
-
-  document.documentElement.style.setProperty(
-    "--small-closebuttonwidth",
-    `${local.closebuttonwidth}px`
-  );
-
-
-  document.documentElement.style.setProperty(
-    "--buttonloadanimation",
-    `${local.buttonloadanimation}`
-  );
-
-  document.documentElement.style.setProperty(
-    "--progressbarcolor",
-    `${local.progressbarcolor}`   
- )
-
-
- document.documentElement.style.setProperty(
-  "--progressbarheight",
-  `${local.progressbarheight}px`
-)
-
-
-  
-  setTimeout(() => {
-    document.documentElement.style.setProperty(
-      "--color-border",
-      local.widthcolor
-    );
-
-    document.documentElement.style.setProperty(
-      "--color-width",
-      `${local.widthsize}px`
-    );
-  }, local.firestylechanges * 1000);
- 
-
-
-  if (Object.entries(data).length === 0) return <div></div>;
-
-  const [show, SetShow] = useState<boolean>(false);
-  const [video, setvideo] = useState<string>("");
-  const [gif, setgif] = useState<string>("");
-  const [initialsize, setinitialsize] = useState<boolean>(false);
-  const [next, setnext] = useState<string>(local?.startStep);
-  const [buttons, setbutton] = useState({} as any );
-  const [removefromcontainer, setremovefromcontainer] = useState(false);
-  const [muted, setmuted] = useState(true);
-  const [timeout, settimeout] = useState<number>(0);
-  const videoEl = useRef<HTMLVideoElement | null>(null);
-  const {  width } = useWindowDimensions();
-  function handlestoragevals(data: any) {
-    let sa = Object.keys(data).map((e) => {
-      return { base: e, count: 0 };
-    });
-
-    if (!JSON.parse(localStorage.getItem("initialvideo")!).length) {
-      setfirst(sa);
-    }
-  }
-
-  const number = useRef<number>(0)
-  function keypair(key = local?.startStep) {
-    local?.steps
-      .filter((e: any) => e)
-      .filter((e: any) => {
-        if (e.key === key) {
-          number.current = e.answerTime
-          settimeout(e.answerTime);
-          setbutton(e);
-          setvideo(e.stockAsset.videoUrl);
-          setgif(e.stockAsset.gifUrl);
-          document.documentElement.style.setProperty(
-            "--f22-display",
-            `${e.display || "block"}`
-          );
-        }
-      });
-  }
-
-  useEffect(() => {
-
-     setInterval(() => {
-      if (videoEl.current!?.currentTime > number.current && initialsize  ) {
-      SetShow(true);
-
-        return
-     }
-    } , 1000 )
-    //  return clearInterval(val)
-  } , [next, initialsize, timeout] )
-
-
-
-
-  keypair(next);
-
-  function handleChange(val: string) {
-    setnext(val);
-    SetShow(false);
-  }
- 
-  function handleCloseforlargesize() {
-    setinitialsize(false);
-    SetShow(false);
-    setnext(local?.startStep);
-    setmuted(true);
-    setinitalanimation(false)
-  }
-
-  function cmpclose() {
-    setremovefromcontainer(true);
-  }
-
-  function handlemuted() {
-    if (videoEl.current) {
-      setmuted((prev) => !prev);
-      videoEl.current.muted = muted;
-    }
-  }
-
-  function handlpositioncss() {
-    let xp = {
-      transform: `translate(${local?.custom?.x}px  , ${local?.custom?.y}px)`,
-    };
-    //
-    if (typeof local?.custom?.x === "string") {
-      xp = {
-        transform: `translate(${local?.custom?.x}  , ${local?.custom?.y})`,
-      };
-    }
-
-    switch (local?.widgetPosition) {
-      case "bottomRight":
-        cssval = { bottom: "10px", right: "10px", ...xp };
-        break;
-      case "bottomLeft":
-        cssval = { bottom: "10px", left: "10px", ...xp };
-        break;
-      case "topRight":
-        cssval = { top: "3px", right: "10px", ...xp };
-        break;
-      case "topLeft":
-        cssval = { top: "3px", left: "10px", ...xp };
-        break;
-      case "bottomcenter":
-        cssval = { bottom: "10px", left: "50%", ...xp };
-        break;
-
-      case "topcenter":
-        cssval = { top: "3px", left: "50%", ...xp };
-        break;
-
-      case "leftcenter":
-        cssval = { left: "10px", ...xp };
-        break;
-
-      case "rightcenter":
-        cssval = { top: "3px", left: "50%", ...xp };
-        break;
-
-      default:
-        return cssval;
-    }
-  }
-
-  handlpositioncss();
-
-  if (local.toshowinmobile) {
-    if (width <= 600) {
-      return <div></div>;
-    }
-  }
-
-  if (removefromcontainer) {
-    return <div></div>;
-  }
-
-  function onlocalchange() {
-    handlestoragevals(data);
-    setfirst((prev: any[]) => {
-      let sai = prev.map((e, i) => {
-        if (e.base === base && e.count < data[base].length - 1) {
-          return { ...e, count: e.count + 1 };
-        }
-        return e;
-      });
-
-      return sai;
-    });
-
-    getingkeys();
-  }
-
-
-  setTimeout(() => {
-    settimingshow(false);
-  }, 1000);
-
-
-   const [modal, setmodal] = useState(local.ismodal ? true : false);
-   const [values, setvalues] = useState({} as any );
-    useEffect(() => {
-       setTimeout(() => {
-    setmodal(local.ismodal)
-     }, 1000);
-    } ,[])
-
-
-   if (modal) {
-       return <> { modal ? <Modal setmodal ={setmodal}   values = {values} setvalues = {setvalues} modalformformat = { local?.modal?.dummy} />  : <div></div> } </>
-  } 
 
   return (
-    <div
-      className={
-        !timingshow
-          ? `small-video-container-box-parent `
-          : `small-video-container-box-parent smsmsmhidden  `
-      }
-      style={cssval as any}
-    >
-      <style>
-        @import
-        url('https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap');
-      </style>
-      {initialsize ? (
-        <LargeComponent
-          cssval={cssval}
-          handleCloseforlargesize={handleCloseforlargesize}
-          video={video}
-          videoEl={videoEl}
-          handlemuted={handlemuted}
-          muted={muted}
-          handleChange={handleChange}
-          show={show}
-          buttons={buttons}
-          // data = {}
-        />
-      ) : (
+    <>
+    {/* <div onClick={handlePopup} > */}
         <SmallComponent
-          showcross = {showcross}
-          setShowcross ={setShowcross}
-          base={base}
-          cmpclose={cmpclose}
-          data={local}
-          setinitialsize={setinitialsize}
-          video={gif}
-          round={local?.rounded}
-          onlocalchange={onlocalchange}
-          initalanimation = {initalanimation}
+          video={"https://f22videoplugin.s3.ap-northeast-1.amazonaws.com/lapp/lappintro.mp4"}
+          handlePopup={handlePopup}
         />
-      )}
-    </div>
+    {/* </div> */}
+   </>
   );
 }
 
