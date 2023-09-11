@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "uelements";
 import { SmallComponentprops } from "../types";
+import { Playbutton } from "../assets/Icons";
+
 function SmallComponent({
   video,
-  handlePopup,
-  
+  handlePopup,  
 }: SmallComponentprops) {
   const [dragging, setDragging] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -15,7 +16,7 @@ function SmallComponent({
     setPos({ x: e.clientX, y: e.clientY });
   };
 
-  const handleMouseUp = (e) => {
+  const handleMouseUp = (e: MouseEvent) => {
     e.stopPropagation()
     setDragging(false);
   };
@@ -71,21 +72,27 @@ function SmallComponent({
   return (
     <>
       <>
-        <div className={`small-video-container-box `}
+        <div className={`small-video-container-box`}
          ref={divContainerRef} 
          style={{position: 'fixed'}}
         >
           <div className={"smvideo-container"} data-customattribute={"red"}>
             <video
+              id="videos"
               src={video}
               autoPlay
-              id="videos"
               muted
               loop
-              playsInline
-              onClick={handlePopup}
+              // playsInline
+              // onClick={handlePopup}
               // ref={videoref}
             />
+          </div>
+
+          <div className="buttonDiv">
+            <button onClick={handlePopup} className='buttonStyle'>
+              <Playbutton />
+            </button>
           </div>
         </div>
       </>

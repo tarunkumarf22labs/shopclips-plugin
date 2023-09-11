@@ -417,3 +417,16 @@ video {
     position: absolute;
     top: 0;
 }
+
+.buttonDiv{
+  position: absolute;
+  top: 40%;
+  left: 30%;
+}
+
+.buttonStyle{
+  cursor: pointer;
+  background-color: transparent;
+  /* size: 30px; */
+  border: none;
+}
