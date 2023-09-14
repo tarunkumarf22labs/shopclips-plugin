@@ -8,6 +8,7 @@ function SmallComponent({
 }: SmallComponentprops) {
   const [dragging, setDragging] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [prevPos, setPrevPos] = useState({ x: 0, y: 0 });
   const divContainerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (e : MouseEvent ) => {
@@ -83,8 +84,13 @@ function SmallComponent({
               autoPlay
               muted
               loop
+              onMouseUp={(e) => {
+                prevPos.x === e.pageX && handlePopup(e)
+              }}
+              onMouseDown={(e) => {
+                setPrevPos({x: e.pageX, y: e.pageY})
+              }}
               // playsInline
-              // onClick={handlePopup}
               // ref={videoref}
             />
           </div>
