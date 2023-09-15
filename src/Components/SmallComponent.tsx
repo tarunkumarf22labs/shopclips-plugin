@@ -17,11 +17,16 @@ function SmallComponent({
     setPos({ x: e.clientX, y: e.clientY });
   };
 
-  const handleMouseUp = (e: MouseEvent) => {
+  const handleTouchStart = (e: TouchEvent) => {
+    e.stopPropagation()
+    setPos({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    setDragging(true);
+  };
+
+  const handleMouseUp = (e: MouseEvent | TouchEvent) => {
     e.stopPropagation()
     setDragging(false);
   };
-
 
   const handleMouseMove = (e : MouseEvent ) => {
     e.stopPropagation()
@@ -35,18 +40,14 @@ function SmallComponent({
         x: el.offsetLeft - newPos.x,
         y: el.offsetTop - newPos.y,
       };
-
       
       const maxMoveX = Math.max(0, document.body.clientWidth - el.offsetWidth);
-      const maxMoveY = Math.max(0, document.body.clientHeight - el.offsetHeight);
-      // console.log(document.body.clientHeight - el.offsetHeight , document.body.clientHeight , el.offsetHeight  , "el.offsetHeight " );
-      
+      const maxMoveY = Math.max(0, window.innerHeight - el.offsetHeight);
+
       if (updatedPos.x < 0) updatedPos.x = 0;
-          if (updatedPos.y < 0) updatedPos.y = 0;
+      if (updatedPos.y < 0) updatedPos.y = 0;
       if (updatedPos.x > maxMoveX) updatedPos.x = maxMoveX;
-      // console.log(updatedPos.y > maxMoveY , updatedPos.y , maxMoveY  );
-      
-      // if (updatedPos.y > maxMoveY) updatedPos.y = maxMoveY;
+      if (updatedPos.y > maxMoveY) updatedPos.y = maxMoveY;
 
       el.style.left = `${updatedPos.x}px`;
       el.style.top = `${updatedPos.y}px`;
@@ -54,6 +55,31 @@ function SmallComponent({
     }
   };
 
+  const handleTouchMove = (e : TouchEvent ) => {
+    e.stopPropagation()
+    if (dragging) {
+      const el = divContainerRef.current!;
+      const newPos = {
+        x: pos.x - e.touches[0].clientX,
+        y: pos.y - e.touches[0].clientY,
+      }
+      const updatedPos = {
+        x: el.offsetLeft - newPos.x,
+        y: el.offsetTop - newPos.y,
+      };
+      
+      const maxMoveX = Math.max(0, document.body.clientWidth - el.offsetWidth);
+      const maxMoveY = Math.max(0, window.innerHeight - el.offsetHeight);
+      
+      if (updatedPos.x < 0) updatedPos.x = 0;
+      if (updatedPos.y < 0) updatedPos.y = 0;
+      if (updatedPos.x > maxMoveX) updatedPos.x = maxMoveX;
+      if (updatedPos.y > maxMoveY) updatedPos.y = maxMoveY;
+      
+      el.style.left = `${updatedPos.x}px`;
+      el.style.top = `${updatedPos.y}px`;
+    }
+  };
   
   useEffect(() => {
     const el = divContainerRef.current;
@@ -61,6 +87,10 @@ function SmallComponent({
       el.addEventListener("mousedown", handleMouseDown);
       document.addEventListener("mouseup", handleMouseUp);
       document.addEventListener("mousemove", handleMouseMove);
+      
+      el.addEventListener("touchstart", handleTouchStart);
+      document.addEventListener("touchend", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove);
 
       return () => {
         el.removeEventListener("mousedown", handleMouseDown);
@@ -90,7 +120,7 @@ function SmallComponent({
               onMouseDown={(e) => {
                 setPrevPos({x: e.pageX, y: e.pageY})
               }}
-              // playsInline
+              playsInline
               // ref={videoref}
             />
           </div>
