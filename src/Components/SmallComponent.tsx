@@ -6,11 +6,14 @@ function SmallComponent({
   video,
   handlePopup,  
 }: SmallComponentprops) {
+  const dataURL  = "https://shopify-shopclips.bmohox.easypanel.host";
   const [dragging, setDragging] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [prevPos, setPrevPos] = useState({ x: 0, y: 0 });
   const divContainerRef = useRef<HTMLDivElement>(null);
+  
 
+  
   const handleMouseDown = (e : MouseEvent ) => {
     e.stopPropagation()
     setDragging(true);

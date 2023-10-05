@@ -35,3 +35,15 @@ export interface CustomButtomprops{
   setCurrentTime : StateUpdater<number>
   setShowPause : StateUpdater<boolean>
 }
+
+
+export  type State = {
+  toogleopen: boolean;
+  videolength: number | null;
+  ismute: boolean;
+}
+
+export type Action =
+  | { type: "SETTOGGLE"; payload: any }
+  | { type: "SETVIDEOLENGTH"; payload: any }
+  | { type: "SETToggle"; payload: any };

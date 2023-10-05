@@ -1,41 +1,21 @@
 import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
 import SmallComponent from "./Components/SmallComponent";
+import { mediaHandler } from "./reducers";
 import { Crossicon, Muteicon, UnMuteicon } from "./assets/Icons";
+import { Fakedata } from "./data"
 
-type State = {
-  toogleopen: boolean;
-  videolength: number | null;
-  ismute: boolean;
-}
 
-type Action =
-  | { type: "SETTOGGLE"; payload: any }
-  | { type: "SETVIDEOLENGTH"; payload: any }
-  | { type: "SETToggle"; payload: any };
-
-function sahireducer(state: State, action: Action) {
-  const { type, payload } = action;
-  switch (type) {
-    case "SETTOGGLE":
-      return { ...state, toogleopen: !state.toogleopen };
-    case "SETVIDEOLENGTH":
-      return { ...state, videolength: payload };
-    case "SETToggle":
-      return { ...state, ismute: !state.ismute };
-  }
-}
-
-const initialState = {
+const mediaHandlerState = {
   toogleopen: false,
   videolength: null,
   ismute: false,
 };
 
 function App({ dataURL }: { dataURL: string }): JSX.Element {
-  const [state, dispatch] = useReducer(sahireducer, initialState);
+  const [state, dispatch] = useReducer(mediaHandler, mediaHandlerState);
   const videoEl = useRef<HTMLVideoElement>(null);
-  const [count, setCount] = useState(0);
-
+  const [progress, setProgress] = useState(0);
+   const [data, setData] = useState(null)
   const handlePopup = (event: MouseEvent): void => {
     dispatch({
       type: "SETTOGGLE",
@@ -46,33 +26,59 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const handleLoadedMetadata = () => {
     const video = videoEl.current!;
     if (!video) return;
-    // video.pause();
     dispatch({ type: "SETVIDEOLENGTH", payload: video.duration });
   };
 
+  async function handleData() {
+    const myHeaders = new Headers();
+    myHeaders.append("accept", "application/json");
+    myHeaders.append("Content-Type", "application/json");
+  
+  const requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+  };
+  
+   try{
+    const Store = await fetch(`https://shopify-shopclips.bmohox.easypanel.host/api/clips?filters[store][$contains]=test-for-qa&populate=deep`, requestOptions)
+    const data = await Store.json();
+    const value =  data?.data?.find((data : any ) => data?.attributes?.clips?.[0].url === "https://test-for-qa.myshopify.com/admin/apps/herostars/app" )
+    console.log(value);
+    
+    setData(value)
+    return data
+   } catch (error) {
+     console.log(error);
+   }
+  }
   useEffect(() => {
-    videoEl.current!?.addEventListener("timeupdate", handleTimeUpdate);
-    // videoEl?.current?.play();
+    handleData()
+    // setData(Fakedata.data.find((data) => data.attributes.clips[0].url === "https://test-for-qa.myshopify.com/admin/apps/herostars/app"));
+  } ,[])
+  useEffect(() => {
+
+    
+    videoEl?.current?.addEventListener("timeupdate", handleTimeUpdate);
     return () => {
-      videoEl.current!?.removeEventListener("timeupdate", () => setCount(0));
+      videoEl?.current?.removeEventListener("timeupdate", () => setProgress(0));
     };
-  }, [videoEl.current]);
+  }, [videoEl?.current]);
 
   const handleTimeUpdate = () => {
+     if (!videoEl.current) return
     const progress = (videoEl.current!.currentTime / state.videolength!) * 100;
-    setCount(progress);
+    setProgress(progress);
   };
 
   const handleToogle = () => {
-    // dispatch({ type: "SETToggle" });
     if (!state.ismute) {
       videoEl.current!.muted = true;
     } else {
       videoEl.current!.muted = false;
     }
   };
+ 
   
-
   if (state.toogleopen) {
     return (
       <div>
@@ -90,7 +96,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
                   <div
                     style={{
                       display: "block !important",
-                      transform: `scaleX(${count / 100})`,
+                      transform: `scaleX(${progress / 100})`,
                     }}
                     className={`playbarinline   `}
                   ></div>
@@ -110,9 +116,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
 
           <video
             ref={videoEl}
-            src={
-              "https://f22videoplugin.s3.ap-northeast-1.amazonaws.com/lapp/lappintro.mp4"
-            }
+            src={data?.attributes?.clips?.[0].video}
             onLoadedMetadata={handleLoadedMetadata}
             autoPlay
           />
@@ -120,15 +124,14 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
       </div>
     );
   }
+  if(!data) return <></>
 
   return (
     <>
-      {/* <div onClick={handlePopup} > */}
       <SmallComponent
-        video={"https://f22videoplugin.s3.ap-northeast-1.amazonaws.com/lapp/lappintro.mp4"}
+        video={data?.attributes?.clips?.[0].video}
         handlePopup={handlePopup}
       />
-      {/* </div> */}
     </>
   );
 }
