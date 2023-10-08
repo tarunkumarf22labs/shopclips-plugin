@@ -129,7 +129,7 @@ function Customslider({
           onClick={() => {
             // videoRef.current.play();
             setIsOpen(false);
-            startProgress();
+            // startProgress();
             videoRef.current.play();
           }}
         >

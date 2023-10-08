@@ -125,6 +125,7 @@ function SmallComponent({
               }}
               playsInline
               // ref={videoref}
+              style={{objectFit: 'cover'}}
             />
           </div>
 

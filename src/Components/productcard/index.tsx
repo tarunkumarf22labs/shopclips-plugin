@@ -6,12 +6,7 @@ type Props = {
   productname: string;
 };
 
-const ProductCard = ({
-  productname,
-  setIsOpen,
-  setproductName
-}: any) => {
-  
+const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
   const [product, setProduct] = useState<any>();
   const [variant, setVariant] = useState("");
   const [isVariantSelectorOpen, setIsVariantSelectorOpen] = useState(false);
@@ -79,23 +74,23 @@ const ProductCard = ({
     setIsVariantSelectorOpen(true);
   };
   const handleOpenProductDetails = () => {
-    setproductName(productname.name)
-    // triggers.setProductId(productname);
-    // triggers.dotclickedtoupdate(
-    //   triggers.productid ||
-    //     triggers.data?.childstories[triggers.actualTime]?.dots?.[0]
-    //       ?.productname,
-    //   triggers.data?.childstories[triggers.actualTime],
-    //   triggers.data
-  // setIsVariantSelectorOpen(())
-    // );
-    // setIsOpen((prev) => !prev);
-    // stopProgress();
-    // if (isOpen) {
-    //   startProgress();
+    setproductName(productname.name);
+    // setProductId(productname);
+    //   triggers.dotclickedtoupdate(
+    //     triggers.productid ||
+    //       triggers.data?.childstories[triggers.actualTime]?.dots?.[0]
+    //         ?.productname,
+    //     triggers.data?.childstories[triggers.actualTime],
+    //     triggers.data
+    // setIsVariantSelectorOpen(())
+    //   );
+    //   setIsOpen((prev) => !prev);
+    //   stopProgress();
+    //   if (isOpen) {
+    //     startProgress();
     // }
-    
-    setIsOpen((prev) => !prev)
+
+    setIsOpen((prev) => !prev);
   };
   const handleAddToCart = () => {
     const url = "https://paperlondon.in/cart/add";
@@ -104,7 +99,6 @@ const ProductCard = ({
       id: variant,
     };
 
-     
     fetch(url, {
       method: "POST",
       headers: {
@@ -132,11 +126,13 @@ const ProductCard = ({
         <div
           className="product-card-img"
           onClick={() => handleOpenProductDetails()}
+          style={{ cursor: "pointer" }}
         >
           <img src={product?.images[0].image} alt={product?.title} />
         </div>
         <div
           className="product-card-info"
+          style={{ cursor: "pointer" }}
           onClick={() => handleOpenProductDetails()}
         >
           <span className="product-card-info-title">{product?.title}</span>
@@ -164,10 +160,7 @@ const ProductCard = ({
         </div>
       </div>
       {isVariantSelectorOpen ? (
-        <button
-          className="add-to-cart-product-card"
-            onClick={handleAddToCart}
-        >
+        <button className="add-to-cart-product-card" onClick={handleAddToCart}>
           Add to Cart
         </button>
       ) : (
