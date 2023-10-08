@@ -8,11 +8,10 @@ type Props = {
 
 const ProductCard = ({
   productname,
-  stopProgress,
-  isOpen,
   setIsOpen,
-  triggers,
-}: Props) => {
+  setproductName
+}: any) => {
+  
   const [product, setProduct] = useState<any>();
   const [variant, setVariant] = useState("");
   const [isVariantSelectorOpen, setIsVariantSelectorOpen] = useState(false);
@@ -53,7 +52,7 @@ const ProductCard = ({
     async function fetchData() {
       try {
         const data = await fetch(
-          `https://shilpashastrastudio.in/products/${productname}.xml`,
+          `https://paperlondon.com/products/${productname.name}.xml`,
           { redirect: "follow" }
         );
         const value = await data.text();
@@ -73,33 +72,39 @@ const ProductCard = ({
   }, [productname]);
 
   const handleVariantSelection = (id, index) => {
-    stopProgress();
+    // stopProgress();
     setVariant(id);
+
     setSelectedVariantIndex(index);
     setIsVariantSelectorOpen(true);
   };
   const handleOpenProductDetails = () => {
-    triggers.setProductId(productname);
-    triggers.dotclickedtoupdate(
-      triggers.productid ||
-        triggers.data?.childstories[triggers.actualTime]?.dots?.[0]
-          ?.productname,
-      triggers.data?.childstories[triggers.actualTime],
-      triggers.data
-    );
-    setIsOpen((prev) => !prev);
-    stopProgress();
-    if (isOpen) {
-      startProgress();
-    }
+    setproductName(productname.name)
+    // triggers.setProductId(productname);
+    // triggers.dotclickedtoupdate(
+    //   triggers.productid ||
+    //     triggers.data?.childstories[triggers.actualTime]?.dots?.[0]
+    //       ?.productname,
+    //   triggers.data?.childstories[triggers.actualTime],
+    //   triggers.data
+  // setIsVariantSelectorOpen(())
+    // );
+    // setIsOpen((prev) => !prev);
+    // stopProgress();
+    // if (isOpen) {
+    //   startProgress();
+    // }
+    
+    setIsOpen((prev) => !prev)
   };
   const handleAddToCart = () => {
-    const url = "https://shilpashastrastudio.in/cart/add";
+    const url = "https://paperlondon.in/cart/add";
     const data = {
       quantity: 1,
       id: variant,
     };
 
+     
     fetch(url, {
       method: "POST",
       headers: {
@@ -109,7 +114,7 @@ const ProductCard = ({
     })
       .then((response) => {
         if (response.ok) {
-          window.location.href = "https://shilpashastrastudio.in/cart";
+          window.location.href = "https://paperlondon.in/cart";
         } else {
           throw new Error("Failed to add to cart");
         }
@@ -136,7 +141,7 @@ const ProductCard = ({
         >
           <span className="product-card-info-title">{product?.title}</span>
           <span className="product-card-info-price">
-            £{product?.variants[0].price}
+            £{product?.variants?.[0]?.price}
           </span>
         </div>
         <div
@@ -169,8 +174,8 @@ const ProductCard = ({
         <button
           className="add-to-cart-product-card"
           onClick={() => {
-            setVariant(product?.variants[0]?.id);
-            stopProgress();
+            setVariant(product?.variants?.[0]?.id);
+            // stopProgress();
             setIsVariantSelectorOpen(true);
           }}
         >

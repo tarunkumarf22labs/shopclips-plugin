@@ -2,7 +2,9 @@ import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
 import SmallComponent from "./Components/SmallComponent";
 import { mediaHandler } from "./reducers";
 import { Crossicon, Muteicon, UnMuteicon } from "./assets/Icons";
-import { Fakedata } from "./data"
+// import { Fakedata } from "./data"
+import ProductCard from "./Components/productcard";
+import { MemoizedStoryDrawer } from "./Components/storydrawer/storydrawer";
 
 
 const mediaHandlerState = {
@@ -15,7 +17,10 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const [state, dispatch] = useReducer(mediaHandler, mediaHandlerState);
   const videoEl = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
-   const [data, setData] = useState(null)
+  const [data, setData] = useState(null)
+  const [dummy , setdummydata] =  useState([] as any)
+  const [isOpen,SetisOpen] = useState(false)
+  const [productName, setproductName] = useState("")
   const handlePopup = (event: MouseEvent): void => {
     dispatch({
       type: "SETTOGGLE",
@@ -42,18 +47,39 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
    try{
     const Store = await fetch(`https://shopify-shopclips.bmohox.easypanel.host/api/clips?filters[store][$contains]=test-for-qa&populate=deep`, requestOptions)
     const data = await Store.json();
-    const value =  data?.data?.find((data : any ) => data?.attributes?.clips?.[0].url === "https://test-for-qa.myshopify.com/admin/apps/herostars/app" )
-    console.log(value);
-    
+    const value =  data?.data?.find((data : any ) => data?.attributes?.clips?.[0].url === "https://admin.shopify.com/store/test-for-qa/apps/herostars/app" )
+    console.log(JSON.stringify(value) , data , "productName");
+     dataPrecessor()
     setData(value)
     return data
    } catch (error) {
      console.log(error);
    }
   }
+
+  function dataPrecessor(){
+   const data = Fakedata.data[0].attributes.clips[0].tags.map((data : any) => {
+      const productName = data.handle;
+      const images = data.images.map((data : any ) => data.originalSrc );
+      const variants = data.variants.map((data : any ) => {
+          return {
+            availableForSale : data.availableForSale,
+            inventoryItem : data?.inventoryItem.id.replace("gid://shopify/InventoryItem/" , ""),
+            selectedOptions : data.selectedOptions[0].value,
+            price : data.price
+          }
+      } )
+      return{
+         name : productName ,
+        //  images,
+        //  variants
+      } 
+    } )
+    setdummydata(data)
+    
+  }
   useEffect(() => {
     handleData()
-    // setData(Fakedata.data.find((data) => data.attributes.clips[0].url === "https://test-for-qa.myshopify.com/admin/apps/herostars/app"));
   } ,[])
   useEffect(() => {
 
@@ -78,7 +104,6 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
     }
   };
  
-  
   if (state.toogleopen) {
     return (
       <div>
@@ -114,24 +139,38 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
             ""
           )}
 
-          <video
+          {/* <video
             ref={videoEl}
-            src={data?.attributes?.clips?.[0].video}
+            // src={data?.attributes?.clips?.[0].video}
+            src={"https://d1b94xdk5eff5f.cloudfront.net/file_a86870a1f5.mp4"}
             onLoadedMetadata={handleLoadedMetadata}
             autoPlay
-          />
+          /> */}
+          {[{name : "emilia-blazer-in-white-linen" } , { name  : "matilda-trousers-in-white-linen" } ].map((data) =>{
+           return(  <ProductCard
+             productname={data}
+             setIsOpen = {SetisOpen}
+             setproductName = {setproductName}
+             />)
+          } )}
+     <MemoizedStoryDrawer
+productname={productName}
+setIsOpen = {SetisOpen}
+isOpen = {isOpen}
+                  />
         </div>
       </div>
     );
   }
-  if(!data) return <></>
+  // if(!data) return <></>
 
   return (
     <>
       <SmallComponent
-        video={data?.attributes?.clips?.[0].video}
+        video={data?.attributes?.clips?.[0].video }
         handlePopup={handlePopup}
       />
+
     </>
   );
 }
