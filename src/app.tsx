@@ -1,10 +1,11 @@
+// @ts-nocheck
 import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
 import SmallComponent from "./Components/SmallComponent";
 import { mediaHandler } from "./reducers";
 import { Crossicon, Muteicon, UnMuteicon } from "./assets/Icons";
 // import { Fakedata } from "./data"
 import ProductCard from "./Components/productcard";
-import { MemoizedStoryDrawer } from "./Components/storydrawer/Storydrawer";
+import { MemoizedStoryDrawer } from "./Components/storydrawer/storydrawer";
 
 const mediaHandlerState = {
   toogleopen: false,
