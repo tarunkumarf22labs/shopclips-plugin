@@ -113,7 +113,7 @@ function SmallComponent({
           <div className={"smvideo-container"} data-customattribute={"red"}>
             <video
               id="videos"
-              src={"https://d1b94xdk5eff5f.cloudfront.net/file_a86870a1f5.mp4"}
+              src={video}
               autoPlay
               muted
               loop

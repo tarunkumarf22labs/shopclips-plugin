@@ -16,7 +16,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const [state, dispatch] = useReducer(mediaHandler, mediaHandlerState);
   const videoEl = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
   const [dummy, setdummydata] = useState([] as any);
   const [isOpen, setIsOpen] = useState(false);
   const [productName, setproductName] = useState("");
@@ -44,48 +44,36 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
       headers: myHeaders,
     };
 
+     
     try {
       const Store = await fetch(
-        `https://shopify-shopclips.bmohox.easypanel.host/api/clips?filters[store][$contains]=test-for-qa&populate=deep`,
+        `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[store][$contains]=${window?.Shopify?.shop?.split("myshopify.com")[0]}&populate=deep`,
         requestOptions
       );
       const data = await Store.json();
       const value = data?.data?.find(
         (data: any) =>
-          data?.attributes?.clips?.[0].url ===
-          "https://admin.shopify.com/store/test-for-qa/apps/herostars/app"
+          data?.attributes?.clips?.[0].url === window.location.href.split("?")[0]
+          // window.location.href 
+          
       );
-      console.log(JSON.stringify(value), data, "productName");
-      dataPrecessor();
-      setData(value);
+      console.log(JSON.stringify(value , null , 4), data, "productName");
+      dataPrecessor(value);
+
       return data;
     } catch (error) {
       console.log(error);
     }
   }
 
-  function dataPrecessor() {
-    const data = Fakedata.data[0].attributes.clips[0].tags.map((data: any) => {
-      const productName = data.handle;
-      const images = data.images.map((data: any) => data.originalSrc);
-      const variants = data.variants.map((data: any) => {
-        return {
-          availableForSale: data.availableForSale,
-          inventoryItem: data?.inventoryItem.id.replace(
-            "gid://shopify/InventoryItem/",
-            ""
-          ),
-          selectedOptions: data.selectedOptions[0].value,
-          price: data.price,
-        };
-      });
-      return {
-        name: productName,
-        //  images,
-        //  variants
-      };
+  function dataPrecessor(value) {
+    const video = value?.attributes?.clips[0]?.video
+    const productNames = value.attributes.clips[0].tags.map((data: any) => {      
+      return data.handle;
     });
-    setdummydata(data);
+    setData({  productNames , video});
+    console.log(data , "data");
+    
   }
   useEffect(() => {
     handleData();
@@ -110,6 +98,8 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
       videoEl.current!.muted = false;
     }
   };
+
+  if (!data?.video) return <></> 
 
   if (state.toogleopen) {
     return (
@@ -148,18 +138,16 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
 
           <video
             ref={videoEl}
-            // src={data?.attributes?.clips?.[0].video}
-            src={"https://d1b94xdk5eff5f.cloudfront.net/file_a86870a1f5.mp4"}
+            src={data?.video}
+            // src={"https://d1b94xdk5eff5f.cloudfront.net/file_a86870a1f5.mp4"}
             onLoadedMetadata={handleLoadedMetadata}
             autoPlay
           />
 
           <div className="product-cards-container">
             <div className="product-cards">
-              {[
-                { name: "emilia-blazer-in-white-linen" },
-                { name: "matilda-trousers-in-white-linen" },
-              ].map((data) => {
+              {data.productNames.map((data) => {
+                 
                 return (
                   <ProductCard
                     productname={data}
@@ -194,7 +182,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   return (
     <>
       <SmallComponent
-        video={data?.attributes?.clips?.[0].video}
+        video={data?.video}
         handlePopup={handlePopup}
       />
     </>

@@ -7,6 +7,8 @@ type Props = {
 };
 
 const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
+  // console.log(productname , "productname");
+  
   const [product, setProduct] = useState<any>();
   const [variant, setVariant] = useState("");
   const [isVariantSelectorOpen, setIsVariantSelectorOpen] = useState(false);
@@ -43,11 +45,14 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     };
     return relevantData;
   }
+  console.log(productname , "productnameindata");
   useEffect(() => {
+
+    
     async function fetchData() {
       try {
         const data = await fetch(
-          `https://paperlondon.com/products/${productname.name}.xml`,
+          `https://${window.location.host}/products/${productname}.xml`,
           { redirect: "follow" }
         );
         const value = await data.text();
@@ -74,7 +79,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     setIsVariantSelectorOpen(true);
   };
   const handleOpenProductDetails = () => {
-    setproductName(productname.name);
+    setproductName(productname);
     // setProductId(productname);
     //   triggers.dotclickedtoupdate(
     //     triggers.productid ||
@@ -93,7 +98,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     setIsOpen((prev) => !prev);
   };
   const handleAddToCart = () => {
-    const url = "https://paperlondon.in/cart/add";
+    const url = `https://${window.location.host}/cart/add`;
     const data = {
       quantity: 1,
       id: variant,
@@ -108,7 +113,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     })
       .then((response) => {
         if (response.ok) {
-          window.location.href = "https://paperlondon.in/cart";
+          window.location.href = "https://${window.location.host}/cart";
         } else {
           throw new Error("Failed to add to cart");
         }
