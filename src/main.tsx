@@ -11,4 +11,4 @@ define(
 );
 
 let el = document.createElement('f22-plugin')
-document.body.append(el)
+document.body.appendChild(el)
