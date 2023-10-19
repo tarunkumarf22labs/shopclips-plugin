@@ -20,7 +20,7 @@ function SmallComponent({
       <>
         <div className={`small-video-container-box`}
          ref={containerRef} 
-         style={{position: 'fixed'}}
+         style={{position: 'fixed' ,touchAction : 'none'}}
         >
           <div className={"smvideo-container"} data-customattribute={"red"}>
             <video
