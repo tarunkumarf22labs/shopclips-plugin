@@ -13,10 +13,10 @@ export default defineConfig({
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: resolve(  __dirname   , "src/main.tsx"),
-      name: "f22",
+      name: "f22drag",
       formats: ["iife"],
       // the proper extensions will be added
-      fileName: "f22",
+      fileName: "f22drag",
     },
   },
 });
