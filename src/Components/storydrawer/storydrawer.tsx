@@ -89,8 +89,7 @@ function StoryDrawer({
   const handleAddToCart = () => {
 
     setTextforCart(<Loader/>)
-    const url = `https://9shineslabel.com/cart/add`;
-
+    const url = `https://9shineslabel.com/cart`;   
     const requestBody = {
       Style: 'Limited-2',
       quantity: 1,
