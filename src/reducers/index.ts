@@ -7,8 +7,7 @@ export function mediaHandler(state: State, action: Action) {
         return { ...state, toogleopen: !state.toogleopen };
       case "SETVIDEOLENGTH":
         return { ...state, videolength: payload };
-      case "SETToggle":
+      case "SETISMUTE":
         return { ...state, ismute: !state.ismute };
     }
-  }
-
+}

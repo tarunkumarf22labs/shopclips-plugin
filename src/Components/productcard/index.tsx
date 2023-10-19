@@ -45,14 +45,13 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     };
     return relevantData;
   }
-  console.log(productname , "productnameindata");
   useEffect(() => {
 
     
     async function fetchData() {
       try {
         const data = await fetch(
-          `https://${window.location.host}/products/${productname}.xml`,
+          `https://9shineslabel.com/products/${productname}.xml`,
           { redirect: "follow" }
         );
         const value = await data.text();
@@ -98,7 +97,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     setIsOpen((prev) => !prev);
   };
   const handleAddToCart = () => {
-    const url = `https://${window.location.host}/cart/add`;
+    const url = `https://9shineslabel.com/cart/add`;
     const data = {
       quantity: 1,
       id: variant,
@@ -113,7 +112,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     })
       .then((response) => {
         if (response.ok) {
-          window.location.href = "https://${window.location.host}/cart";
+          window.location.href = "https://9shineslabel.com/cart";
         } else {
           throw new Error("Failed to add to cart");
         }
@@ -142,7 +141,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
         >
           <span className="product-card-info-title">{product?.title}</span>
           <span className="product-card-info-price">
-            £{product?.variants?.[0]?.price}
+            RS .{product?.variants?.[0]?.price}
           </span>
         </div>
         <div

@@ -46,4 +46,4 @@ export  type State = {
 export type Action =
   | { type: "SETTOGGLE"; payload: any }
   | { type: "SETVIDEOLENGTH"; payload: any }
-  | { type: "SETToggle"; payload: any };
+  | { type: "SETISMUTE"; payload: any };

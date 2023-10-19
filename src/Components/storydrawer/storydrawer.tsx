@@ -19,7 +19,6 @@ function StoryDrawer({
 
     
   function handledata(xml) {
-    console.log(xml , "xml");
     
     const title = xml?.querySelector("title").textContent;
     const val = xml?.querySelectorAll("variants variant");
@@ -49,7 +48,6 @@ function StoryDrawer({
         return index === self.findIndex((el) => el.image === obj.image);
       }),
     };
-    console.log(relevantData , "relevantData");
     
     return relevantData;
   }
@@ -57,22 +55,20 @@ function StoryDrawer({
   const [variant, setVariant] = useState("");
   const [textforCart, setTextforCart] = useState("Add to cart")
 
-
+  //  window.location.host = "www.9shineslabel.com"
   useEffect(() => {
     if (!productname) return
-    console.log(productname , "productname");
     const Abortcontoller = new AbortController()
     async function fetchData() {
       try {
         const data = await fetch(
-          `https://${window.location.host}/products/${productname}.xml`,
+          `https://9shineslabel.com/products/hosiery-cotton-short-nighty-plus-size-teal.xml`,
           { redirect: "follow" , signal : Abortcontoller.signal }
         );
         const value = await data.text();
         const parser = new DOMParser();
         const xml = parser.parseFromString(value, "application/xml");
         const relevantData = handledata(xml);
-        console.log(relevantData ,"relevantData");
         
         setProduct(relevantData);
         setVariant(relevantData?.variants[0]);
@@ -93,7 +89,7 @@ function StoryDrawer({
   const handleAddToCart = () => {
 
     setTextforCart(<Loader/>)
-    const url = `https://${window.location.host}/cart/add`;
+    const url = `https://9shineslabel.com/cart/add`;
 
     const requestBody = {
       Style: 'Limited-2',
@@ -124,7 +120,6 @@ function StoryDrawer({
       })
       .then(data => {
         // Handle the response data here
-        console.log(data);
         setTextforCart("added to cart")
       })
       .catch(error => {
@@ -162,7 +157,7 @@ function StoryDrawer({
             <button  disabled={textforCart === "Add to cart"  ? false : true   }  onClick={handleAddToCart} className="atc_button" style={{ cursor: "pointer" }} >
  {textforCart}
              </button>
-            <a href={`https://${window.location.host}/cart/${variant.id}:1?checkout`} className="atc_button">
+            <a href={`https://9shineslabel.com/cart/${variant.id}:1?checkout`} className="atc_button">
               BUY NOW
             </a>
           </div>

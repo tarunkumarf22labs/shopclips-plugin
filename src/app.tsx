@@ -3,7 +3,6 @@ import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
 import SmallComponent from "./Components/SmallComponent";
 import { mediaHandler } from "./reducers";
 import { Crossicon, Muteicon, UnMuteicon } from "./assets/Icons";
-// import { Fakedata } from "./data"
 import ProductCard from "./Components/productcard";
 import { MemoizedStoryDrawer } from "./Components/storydrawer/storydrawer";
 
@@ -18,7 +17,6 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const videoEl = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
   const [data, setData] = useState({});
-  const [dummy, setdummydata] = useState([] as any);
   const [isOpen, setIsOpen] = useState(false);
   const [productName, setproductName] = useState("");
 
@@ -27,6 +25,12 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
       type: "SETTOGGLE",
       payload: undefined,
     });
+    if (state.ismute) {
+      dispatch({
+        type : "SETISMUTE"
+      })
+    }
+
   };
 
   const handleLoadedMetadata = () => {
@@ -48,19 +52,14 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
      
     try {
       const Store = await fetch(
-        `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[store][$contains]=${window?.Shopify?.shop?.split("myshopify.com")[0]}&populate=deep`,
+        `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=9shine&populate=deep`,
         requestOptions
       );
       const data = await Store.json();
       const value = data?.data?.find(
-        (data: any) =>
-          data?.attributes?.clips?.[0].url === window.location.href.split("?")[0]
-          // window.location.href 
-          
+        (data: any) => data?.attributes?.clips?.[0].url === window.location.href.split('?')[0]
       );
-      console.log(JSON.stringify(value , null , 4), data, "productName");
       dataPrecessor(value);
-
       return data;
     } catch (error) {
       console.log(error);
@@ -69,21 +68,21 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
 
   function dataPrecessor(value) {
     const video = value?.attributes?.clips[0]?.video
-    const productNames = value.attributes.clips[0].tags.map((data: any) => {      
-      return data.handle;
+    const productNames = value.attributes.clips[0].tags.productIdentifier.map((data: any) => {      
+      return data
     });
-    setData({  productNames , video});
-    console.log(data , "data");
-    
+    setData({ productNames , video});    
   }
+
   useEffect(() => {
     handleData();
   }, []);
+
   useEffect(() => {
-    videoEl?.current?.addEventListener("timeupdate", handleTimeUpdate);
-    return () => {
-      videoEl?.current?.removeEventListener("timeupdate", () => setProgress(0));
-    };
+     videoEl?.current?.addEventListener("timeupdate", handleTimeUpdate);
+       return () => {
+    videoEl?.current?.removeEventListener("timeupdate", () => setProgress(0));
+      };
   }, [videoEl?.current]);
 
   const handleTimeUpdate = () => {
@@ -93,11 +92,10 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   };
 
   const handleToogle = () => {
-    if (!state.ismute) {
-      videoEl.current!.muted = true;
-    } else {
-      videoEl.current!.muted = false;
-    }
+  dispatch({
+    type : "SETISMUTE"
+  })
+  videoEl.current!.muted = !state.ismute
   };
 
   if (!data?.video) return <></> 
@@ -147,7 +145,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
 
           <div className="product-cards-container">
             <div className="product-cards">
-              {data.productNames.map((data) => {
+              {data?.productNames.map((data) => {
                  
                 return (
                   <ProductCard
@@ -178,7 +176,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
       </div>
     );
   }
-  // if(!data) return <></>
+
 
   return (
     <>

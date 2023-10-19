@@ -104,7 +104,7 @@ function Customslider({
     <div className="custom-slider-container">
       <div className="nav-icons">
         <a
-          href={`${window.location.host}/products/${productName}`}
+          href={`https://9shineslabel.com/products/${productName}`}
           target="__blank"
         >
           <svg
@@ -141,7 +141,7 @@ function Customslider({
       </div>
       <div className="prod-desc">
         <div className="prod-info">
-          <a     href={`${window.location.host}/products/${productName}`}>
+          <a     href={`https://9shineslabel.com/products/${productName}`}>
             <h5 style={{ fontSize: "14px", marginBottom: ".5rem" }}>
               {productTitle}
             </h5>
@@ -151,7 +151,7 @@ function Customslider({
               fontSize: "14px",
             }}
           >
-            £ {productPrice}{" "}
+            {productPrice}{" "}
           </h5>
         </div>
         {/* <div className="size-wrapper">
@@ -160,7 +160,7 @@ function Customslider({
       </div>
 
       <div id="main__container">
-        <a     href={`${window.location.host}/products/${productName}`} style={{textDecoration: "none"}}>
+        <a     href={`https://9shineslabel.com/products/${productName}`} style={{textDecoration: "none"}}>
           <div className="prod-images">
             {slides.imgData.map((prod) => (
               <div className="prod-image">

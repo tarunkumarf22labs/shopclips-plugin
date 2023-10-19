@@ -27,6 +27,10 @@
   box-sizing: border-box;
 }
 
+.size__text{
+  font-size: 10px;
+}
+
 .video-container {
   width: var(--largecontainer-width);
   height: var(--largecontainer-height);
@@ -448,6 +452,10 @@ video {
   width: 100%;
   /* height: 100%; */
   padding: .5rem 0;
+  /* for 9shine labels */
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .product-cards {
@@ -525,4 +533,11 @@ video {
   background: #fff;
   color: #000;
   border: 2px solid #000;
+}
+
+@media only screen and (max-width: 600px) {
+.video-box{
+  width: 100%;
+  height: 100%;
+}
 }
