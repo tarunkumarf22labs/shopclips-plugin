@@ -48,7 +48,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
      
     try {
       const Store = await fetch(
-        `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[store][$contains]=${window?.Shopify?.shop?.split("myshopify.com")[0]}&populate=deep`,
+        `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=${window?.Shopify?.shop?.split(".myshopify.com")[0]}&populate=deep`,
         requestOptions
       );
       const data = await Store.json();
