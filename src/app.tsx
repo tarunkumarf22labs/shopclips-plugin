@@ -37,9 +37,16 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
 
 
   function dataPrecessor(value) {
+    console.log(value  , "pappaappaapp");
+    
     const Dvalue = value?.attributes?.clips[0]
     const video = Dvalue?.video
-    const productNames = Dvalue?.tags?.map((data: any) => { return data.id.split("gid://shopify/Product/")[1];});    
+    const productNames = Dvalue?.tags?.map((data: any) => { 
+       console.log(value , "binidoini");
+      return data.handle
+    
+    });   
+    console.log(productNames);
     setData({  productNames , video});
   }
   async function handleData() {
@@ -54,11 +61,11 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
     try {
       const [storeResponse, clipsResponse] = await Promise.all([
         fetch(
-          `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=${window.Shopify.shop}&populate=deep`,
+          `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=test-for-qa.myshopify.com&populate=deep`,
           requestOptions
         ),
         fetch(
-          `https://shopify-shopclips.uakhui.easypanel.host/api/stores?filters[name][$contains]=${window.Shopify.shop}`,
+          `https://shopify-shopclips.uakhui.easypanel.host/api/stores?filters[name][$contains]=test-for-qa.myshopify.com`,
           requestOptions
         )
       ]);
@@ -71,7 +78,8 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
         url  :  clipsData?.data?.[0].attributes.name ,
         token :  clipsData?.data?.[0].attributes.borderColor
       }  })       
-      const storeValue = storeData.data.find( (data) => data.attributes.clips[0].url === window.location.href);
+      const storeValue = storeData.data.find( (data) => data.attributes.clips[0].url === "https://test-for-qa.myshopify.com/");
+       console.log(storeValue);
       dataPrecessor(storeValue);
   
       return {

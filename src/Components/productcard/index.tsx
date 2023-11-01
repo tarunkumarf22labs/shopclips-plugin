@@ -12,10 +12,9 @@ const ProductCard = ({ productname, setIsOpen, setproductName , url , token }: a
   const [variant, setVariant] = useState("");
   const [isVariantSelectorOpen, setIsVariantSelectorOpen] = useState(false);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
-
-  function handledata(xml) {
-       console.log(xml , "xml");
-       
+   console.log(url);
+   
+  function handledata(xml) {       
   xml = xml?.product  
     const relevantData = {
       title : xml.title,
@@ -47,13 +46,10 @@ const ProductCard = ({ productname, setIsOpen, setproductName , url , token }: a
         });
         
         var requestOptions = {
-          method: 'POST',
-          headers: myHeaders,
-          body: raw,
           redirect: 'follow'
         };
         
-        fetch("https://shopclips-shopclips-be.leiusn.easypanel.host/products", requestOptions)
+        fetch(`https://${url}/products/${productname}.json`, requestOptions)
           .then(response => response.json())
           .then(result => handledata(result))
           .catch(error => console.log('error', error));
@@ -62,7 +58,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName , url , token }: a
        }
           }
     fetchData();
-  }, [token , url, token]);
+  }, [token , url]);
 
   const handleVariantSelection = (id, index) => {
     setVariant(id);
