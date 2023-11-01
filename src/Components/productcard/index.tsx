@@ -3,9 +3,6 @@ import { useEffect, useState } from "uelements";
 import "./ProductCard.css";
 import { memo } from "react";
 
-type Props = {
-  productname: string;
-};
 
 const ProductCard = ({ productname, setIsOpen, setproductName , url , token }: any) => {    
   const [product, setProduct] = useState<any>();
