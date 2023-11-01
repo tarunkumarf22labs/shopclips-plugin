@@ -41,9 +41,11 @@ export  type State = {
   toogleopen: boolean;
   videolength: number | null;
   ismute: boolean;
+
 }
 
 export type Action =
   | { type: "SETTOGGLE"; payload: any }
   | { type: "SETVIDEOLENGTH"; payload: any }
-  | { type: "SETToggle"; payload: any };
+  | { type: "SETToggle"; payload: any }
+  | { type: "SETTOKENS"; payload: any };

@@ -6,6 +6,7 @@ import { memo } from "preact/compat";
 import Loader from "../Loader";
 function StoryDrawer({
   setIsOpen,
+  url,
   isSizeOpen,
   setIsSizeOpen,
   productname,
@@ -15,86 +16,18 @@ function StoryDrawer({
   isOpen: boolean;
   productname: string;
   setIsOpen : any
-}) {
-
-    
-  function handledata(xml) {
-    console.log(xml , "xml");
-    
-    const title = xml?.querySelector("title").textContent;
-    const val = xml?.querySelectorAll("variants variant");
-    const variants = Array.from(val).map((vals) => {
-      return {
-        id: parseInt(vals?.querySelector("id")?.textContent),
-        title: vals?.querySelector("title").textContent,
-        price: vals?.querySelector("price")?.textContent,
-      };
-    });
-    const images = Array?.from(xml?.querySelectorAll("images image")).map(
-      (image, id) => {
-        return {
-          id: image?.querySelector("id").textContent,
-          image: image?.querySelector("src").textContent,
-        };
-      }
-    );
-
-    const relevantData = {
-      title,
-      // description,
-      variants: variants.filter((obj, index, self) => {
-        return index === self.findIndex((el) => el.title === obj.title);
-      }),
-      images: images.filter((obj, index, self) => {
-        return index === self.findIndex((el) => el.image === obj.image);
-      }),
-    };
-    console.log(relevantData , "relevantData");
-    
-    return relevantData;
-  }
-  const [product, setProduct] = useState<any>();
+}) {   
   const [variant, setVariant] = useState("");
   const [textforCart, setTextforCart] = useState("Add to cart")
-
-
-  useEffect(() => {
-    if (!productname) return
-    console.log(productname , "productname");
-    const Abortcontoller = new AbortController()
-    async function fetchData() {
-      try {
-        const data = await fetch(
-          `https://${window.location.host}/products/${productname}.xml`,
-          { redirect: "follow" , signal : Abortcontoller.signal }
-        );
-        const value = await data.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(value, "application/xml");
-        const relevantData = handledata(xml);
-        console.log(relevantData ,"relevantData");
-        
-        setProduct(relevantData);
-        setVariant(relevantData?.variants[0]);
-
-
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-    fetchData();
-    setTextforCart("Add to cart")
-    return () => {
-      Abortcontoller.abort()
-    }
-  }, [productname]);
-
     
-  const handleAddToCart = () => {
 
-    setTextforCart(<Loader/>)
-    const url = `https://${window.location.host}/cart/add`;
 
+
+  const handleAddToCart = async () => {
+    console.log({ variant });
+    setTextforCart(<Loader />);
+    const url = `https://${url}/cart/add`;
+  
     const requestBody = {
       Style: 'Limited-2',
       quantity: 1,
@@ -104,9 +37,9 @@ function StoryDrawer({
       sections: 'cart-notification-product,cart-notification-button,cart-icon-bubble',
       sections_url: '/products/gadwal-limited',
     };
-    
+  
     const jsonRequestBody = JSON.stringify(requestBody);
-    
+  
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -114,25 +47,20 @@ function StoryDrawer({
       },
       body: jsonRequestBody, // Set the request body as the JSON string
     };
-    
-    fetch(url, requestOptions)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json(); // Parse the response JSON if needed
-      })
-      .then(data => {
-        // Handle the response data here
-        console.log(data);
-        setTextforCart("added to cart")
-      })
-      .catch(error => {
-        // Handle any errors here
-        setTextforCart("added to cart")
-        console.error(error);
-      });
-      };
+  
+    try {
+      const response = await fetch(url, requestOptions);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      setTextforCart("added to cart");
+    } catch (error) {
+      setTextforCart("added to cart");
+      console.error(error);
+    }
+  };
+  
   return (
     <div
       className="plugin-inner_container"
@@ -140,29 +68,30 @@ function StoryDrawer({
         e.stopPropagation();
       }}
     >
-      {product ? (
+      {productname ? (
         <>
           <Customslider 
-          productimages={product?.images} 
-          productName={productname} 
-          // productDesc={product?.description} 
-          productTitle={product.title} 
-          productPrice={variant.price} 
-          productVariants={product.variants} 
+          productimages={productname?.images} 
+          productName={productname.title} 
+          productTitle={productname.title} 
+          productPrice={productname.price} 
+          productVariants={productname.variants} 
           setVariant={setVariant} 
           isSizeOpen={isSizeOpen} 
           setIsSizeOpen={setIsSizeOpen} 
           setIsOpen={setIsOpen}
           startProgress={startProgress}
           videoRef={videoRef}
+          url={url}
+          handle = {productname.handle}
           />
           
           <div
             className="size_container">
             <button  disabled={textforCart === "Add to cart"  ? false : true   }  onClick={handleAddToCart} className="atc_button" style={{ cursor: "pointer" }} >
- {textforCart}
+              {textforCart}
              </button>
-            <a href={`https://${window.location.host}/cart/${variant.id}:1?checkout`} className="atc_button">
+            <a href={`https://${url}/cart/${variant.id}:1?checkout`} className="atc_button">
               BUY NOW
             </a>
           </div>

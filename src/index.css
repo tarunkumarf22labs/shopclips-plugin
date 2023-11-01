@@ -452,7 +452,6 @@ video {
 
 .product-cards {
   display: flex;
-  justify-content: start;
   align-items: flex-end;
   gap: .5rem;
   overflow-x: auto;

@@ -3,7 +3,6 @@ import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
 import SmallComponent from "./Components/SmallComponent";
 import { mediaHandler } from "./reducers";
 import { Crossicon, Muteicon, UnMuteicon } from "./assets/Icons";
-// import { Fakedata } from "./data"
 import ProductCard from "./Components/productcard";
 import { MemoizedStoryDrawer } from "./Components/storydrawer/storydrawer";
 
@@ -11,6 +10,8 @@ const mediaHandlerState = {
   toogleopen: false,
   videolength: null,
   ismute: false,
+  url : "",
+  token : ""
 };
 
 function App({ dataURL }: { dataURL: string }): JSX.Element {
@@ -18,10 +19,9 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const videoEl = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
   const [data, setData] = useState({});
-  const [dummy, setdummydata] = useState([] as any);
   const [isOpen, setIsOpen] = useState(false);
   const [productName, setproductName] = useState("");
-
+  const [mute, setmute] = useState(false)
   const handlePopup = (event: MouseEvent): void => {
     dispatch({
       type: "SETTOGGLE",
@@ -35,47 +35,57 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
     dispatch({ type: "SETVIDEOLENGTH", payload: video.duration });
   };
 
+
+  function dataPrecessor(value) {
+    const Dvalue = value?.attributes?.clips[0]
+    const video = Dvalue?.video
+    const productNames = Dvalue?.tags?.map((data: any) => { return data.id.split("gid://shopify/Product/")[1];});    
+    setData({  productNames , video});
+  }
   async function handleData() {
     const myHeaders = new Headers();
     myHeaders.append("accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
-
     const requestOptions = {
       method: "GET",
       headers: myHeaders,
     };
-
-     
+  
     try {
-      const Store = await fetch(
-        `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=${window?.Shopify?.shop?.split(".myshopify.com")[0]}&populate=deep`,
-        requestOptions
+      const [storeResponse, clipsResponse] = await Promise.all([
+        fetch(
+          `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=test-for-qa.myshopify.com&populate=deep`,
+          requestOptions
+        ),
+        fetch(
+          `https://shopify-shopclips.uakhui.easypanel.host/api/stores?filters[name][$contains]=test-for-qa.myshopify.com`,
+          requestOptions
+        )
+      ]);
+  
+      const storeData = await storeResponse.json();
+      const clipsData = await clipsResponse.json();
+       console.log(clipsData , "clipsData" , clipsData);
+       
+      dispatch({ type : "SETTOKENS" , payload : {
+        url  :  clipsData?.data?.[0].attributes.name ,
+        token :  clipsData?.data?.[0].attributes.borderColor
+      }  })       
+      const storeValue = storeData.data.find( (data) => data.attributes.clips[0].url === "https://test-for-qa.myshopify.com/"
       );
-      const data = await Store.json();
-      const value = data?.data?.find(
-        (data: any) =>
-          data?.attributes?.clips?.[0].url === window.location.href.split("?")[0]
-          // window.location.href 
-          
-      );
-      console.log(JSON.stringify(value , null , 4), data, "productName");
-      dataPrecessor(value);
-
-      return data;
+      dataPrecessor(storeValue);
+  
+      return {
+        storeData: storeValue,
+        clipsData: clipsData,
+      };
     } catch (error) {
       console.log(error);
     }
   }
+  
 
-  function dataPrecessor(value) {
-    const video = value?.attributes?.clips[0]?.video
-    const productNames = value.attributes.clips[0].tags.map((data: any) => {      
-      return data.handle;
-    });
-    setData({  productNames , video});
-    console.log(data , "data");
-    
-  }
+
   useEffect(() => {
     handleData();
   }, []);
@@ -93,11 +103,10 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   };
 
   const handleToogle = () => {
-    if (!state.ismute) {
-      videoEl.current!.muted = true;
-    } else {
-      videoEl.current!.muted = false;
-    }
+    const video = videoEl.current;
+    if (!video) return;
+    setmute((prev) => !prev )
+    video.muted = !mute;
   };
 
   if (!data?.video) return <></> 
@@ -127,7 +136,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
                 </div>
               </div>
               <div className="muteop" onClick={handleToogle}>
-                {!state.ismute ? <Muteicon /> : <UnMuteicon />}
+                {mute ? <UnMuteicon /> : <Muteicon /> }
               </div>
               <div className="crossiconop" onClick={handlePopup}>
                 <Crossicon />
@@ -140,7 +149,6 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
           <video
             ref={videoEl}
             src={data?.video}
-            // src={"https://d1b94xdk5eff5f.cloudfront.net/file_a86870a1f5.mp4"}
             onLoadedMetadata={handleLoadedMetadata}
             autoPlay
           />
@@ -154,6 +162,8 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
                     productname={data}
                     setIsOpen={setIsOpen}
                     setproductName={setproductName}
+                    token = {state?.token}
+                    url = {state?.url}
                   />
                 );
               })}
@@ -163,23 +173,20 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
         className={`f22storiesdrawer ${isOpen ? "f22open" : ""}`}
         onClick={() => {
           setIsOpen((prev) => !prev);
-          // startProgress();
-          // videoRef.current.play();
-          // setIsSizeOpen(false);
         }}
       >
           <MemoizedStoryDrawer
             productname={productName}
             setIsOpen={setIsOpen}
             isOpen={isOpen}
+            token = {state?.token}
+            url = {state?.url}
           />
           </div>
         </div>
       </div>
     );
   }
-  // if(!data) return <></>
-
   return (
     <>
       <SmallComponent

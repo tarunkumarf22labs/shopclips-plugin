@@ -1,24 +1,21 @@
 // @ts-nocheck
 import "../../styles/customSlide.css";
-import { useEffect, useState } from "uelements";
+import { useState } from "uelements";
 
 
 function Customslider({
   productimages,
   productTitle,
-  // productDesc,
   productName,
-  productPrice,
   productVariants,
   setVariant,
-  isSizeOpen,
-  setIsSizeOpen,
   setIsOpen,
   videoRef,
-  startProgress,
+  url,
+  handle
 }) {
   const [slides, setSlides] = useState({
-    currentImg: productimages[0].image,
+    currentImg: productimages[0],
     currentImgIndex: 0,
     imgData: productimages,
     currentSizeIndex: 0,
@@ -26,85 +23,22 @@ function Customslider({
     sizeData: productVariants,
     totalSlides: productimages.length,
   });
-
-  // console.log("Product - >", slides.sizeData)
-  useEffect(() => {
-    setSlides({
-      currentImg: productimages[0].image,
-      currentImgIndex: 0,
-      imgData: productimages,
-      currentSizeIndex: 0,
-      currentSize: productVariants[0].title,
-      sizeData: productVariants,
-      totalSlides: productimages.length,
-      totalSizeSlides: productVariants.length,
-    });
-  }, [productimages[0].image]);
-  const onCarouselProdClick = (index) => {
-    const selectedProduct = slides.imgData[index];
-    setSlides({
-      ...slides,
-      currentImg: selectedProduct.image,
-      currentImgIndex: index,
-    });
-  };
-
-  const onClickPrev = () => {
-    if (slides.currentImgIndex - 1 >= 0)
-      setSlides({
-        ...slides,
-        currentImg: productimages[slides.currentImgIndex - 1].image,
-        currentImgIndex: slides.currentImgIndex - 1,
-      });
-  };
-  const onClickNext = () => {
-    if (slides.currentImgIndex + 1 < slides.imgData.length)
-      setSlides({
-        ...slides,
-        currentImg: productimages[slides.currentImgIndex + 1].image,
-        currentImgIndex: slides.currentImgIndex + 1,
-      });
-  };
-
-  const onClickSizePrev = () => {
-    if (slides.currentSizeIndex - 1 >= 0) {
-      setSlides({
-        ...slides,
-        currentSize: productVariants[slides.currentSizeIndex - 1].title,
-        currentSizeIndex: slides.currentSizeIndex - 1,
-      });
-      setVariant(slides.sizeData[slides.currentSizeIndex - 1]);
-    }
-  };
-  const onClickSizeNext = () => {
-    if (slides.currentSizeIndex + 1 < slides.sizeData?.length) {
-      setSlides({
-        ...slides,
-        currentSize: productVariants[slides.currentSizeIndex + 1].title,
-        currentSizeIndex: slides.currentSizeIndex + 1,
-      });
-      setVariant(slides.sizeData[slides.currentSizeIndex + 1]);
-    }
-  };
-
-
   const onSliderSizeClick = (index) => {
     const selectedSize = slides.sizeData[index];
     setVariant(selectedSize);
-
     setSlides({
       ...slides,
       currentSize: selectedSize.title,
       currentSizeIndex: index,
     });
-    setIsSizeOpen(!isSizeOpen);
+
   };
 
   return (
     <div className="custom-slider-container">
       <div className="nav-icons">
         <a
-          href={`${window.location.host}/products/${productName}`}
+          href={`https://${url}/products/${handle}`}
           target="__blank"
         >
           <svg
@@ -127,10 +61,8 @@ function Customslider({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           onClick={() => {
-            // videoRef.current.play();
             setIsOpen(false);
-            // startProgress();
-            videoRef.current.play();
+            videoRef?.current?.play();
           }}
         >
           <path
@@ -141,7 +73,11 @@ function Customslider({
       </div>
       <div className="prod-desc">
         <div className="prod-info">
-          <a     href={`${window.location.host}/products/${productName}`}>
+          {/* producthandle */}
+          <a   href={`https://${url}/products/${handle}`}
+                    target="__blank"
+
+          >
             <h5 style={{ fontSize: "14px", marginBottom: ".5rem" }}>
               {productTitle}
             </h5>
@@ -151,28 +87,26 @@ function Customslider({
               fontSize: "14px",
             }}
           >
-            £ {productPrice}{" "}
+             {productVariants[0].price}
           </h5>
         </div>
-        {/* <div className="size-wrapper">
-          <SizeDropdown sizeData={slides.sizeData} currentSize={slides.currentSize} onSliderSizeClick={onSliderSizeClick} isSizeOpen={isSizeOpen} setIsSizeOpen={setIsSizeOpen} />
-        </div> */}
       </div>
 
       <div id="main__container">
-        <a     href={`${window.location.host}/products/${productName}`} style={{textDecoration: "none"}}>
+        <a   
+          href={`https://${url}/products/${handle}`} 
+          target="__blank"
+          style={{textDecoration: "none"}}>
+        
           <div className="prod-images">
             {slides.imgData.map((prod) => (
               <div className="prod-image">
-                <img src={prod.image} alt={prod.title}  loading="eager" />
+                <img src={prod}   loading="eager" />
               </div>
             ))}
           </div>
         </a>
       </div>
-      {/* <div className="product-deatils">
-        <p style={{textAlign: 'justify'}}>{productDesc.substring(0,80)}...<a className="show-more" href={`https://paperlondon.com/products/${productName}`}>SHOW MORE</a></p>
-      </div> */}
       {slides.sizeData.length > 1 && (
         <div className="all__slides__container">
           <div className="all_slides">

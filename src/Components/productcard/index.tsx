@@ -1,110 +1,85 @@
 // @ts-nocheck
 import { useEffect, useState } from "uelements";
 import "./ProductCard.css";
+import { memo } from "react";
 
 type Props = {
   productname: string;
 };
 
-const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
-  // console.log(productname , "productname");
-  
+const ProductCard = ({ productname, setIsOpen, setproductName , url , token }: any) => {    
   const [product, setProduct] = useState<any>();
   const [variant, setVariant] = useState("");
   const [isVariantSelectorOpen, setIsVariantSelectorOpen] = useState(false);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
 
   function handledata(xml) {
-    const title = xml?.querySelector("title").textContent;
-    const val = xml?.querySelectorAll("variants variant");
-    const variants = Array.from(val).map((vals) => {
-      return {
-        id: parseInt(vals?.querySelector("id")?.textContent),
-        title: vals?.querySelector("title").textContent,
-        price: vals?.querySelector("price")?.textContent,
-      };
-    });
-    const images = Array?.from(xml?.querySelectorAll("images image")).map(
-      (image, id) => {
-        return {
-          id: image?.querySelector("id").textContent,
-          image: image?.querySelector("src").textContent,
-        };
-      }
-    );
-
+       console.log(xml , "xml");
+       
+  xml = xml?.product  
     const relevantData = {
-      title,
-
-      variants: variants.filter((obj, index, self) => {
-        return index === self.findIndex((el) => el.title === obj.title);
+      title : xml.title,
+      handle : xml.handle,
+      price : xml?.price,
+      variants: xml?.variants?.map((obj, index, self) => {
+     return {
+      id : obj.inventory_item_id,
+      price : obj.price,
+      title : obj.title
+     }
       }),
-      images: images.filter((obj, index, self) => {
-        return index === self.findIndex((el) => el.image === obj.image);
+      images: xml?.images?.map((obj, index, self) => {
+        return  obj.src
       }),
-    };
+    };   
+    setProduct(relevantData) 
     return relevantData;
   }
-  console.log(productname , "productnameindata");
   useEffect(() => {
-
-    
     async function fetchData() {
-      try {
-        const data = await fetch(
-          `https://${window.location.host}/products/${productname}.xml`,
-          { redirect: "follow" }
-        );
-        const value = await data.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(value, "application/xml");
-
-        const relevantData = handledata(xml);
-        setProduct(relevantData);
-        setVariant(relevantData?.variants[0].id);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
+       try {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");         
+        var raw = JSON.stringify({
+          "accessToken": token,
+          "shop": url,
+          "productname": productname
+        });
+        
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+        
+        fetch("https://shopclips-shopclips-be.leiusn.easypanel.host/products", requestOptions)
+          .then(response => response.json())
+          .then(result => handledata(result))
+          .catch(error => console.log('error', error));
+       } catch (error) {
+          console.log(error);    
+       }
+          }
     fetchData();
-    setSelectedVariantIndex(0);
-    setIsVariantSelectorOpen(false);
-  }, [productname]);
+  }, [token , url, token]);
 
   const handleVariantSelection = (id, index) => {
-    // stopProgress();
     setVariant(id);
-
     setSelectedVariantIndex(index);
     setIsVariantSelectorOpen(true);
   };
   const handleOpenProductDetails = () => {
-    setproductName(productname);
-    // setProductId(productname);
-    //   triggers.dotclickedtoupdate(
-    //     triggers.productid ||
-    //       triggers.data?.childstories[triggers.actualTime]?.dots?.[0]
-    //         ?.productname,
-    //     triggers.data?.childstories[triggers.actualTime],
-    //     triggers.data
-    // setIsVariantSelectorOpen(())
-    //   );
-    //   setIsOpen((prev) => !prev);
-    //   stopProgress();
-    //   if (isOpen) {
-    //     startProgress();
-    // }
-
+    setproductName(product);
     setIsOpen((prev) => !prev);
   };
   const handleAddToCart = () => {
-    const url = `https://${window.location.host}/cart/add`;
+    const carturl = `https://${url}/cart/add`;
     const data = {
       quantity: 1,
       id: variant,
     };
-
-    fetch(url, {
+    fetch(carturl, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -113,7 +88,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
     })
       .then((response) => {
         if (response.ok) {
-          window.location.href = "https://${window.location.host}/cart";
+          setIsVariantSelectorOpen(false)
         } else {
           throw new Error("Failed to add to cart");
         }
@@ -124,7 +99,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
       .catch((error) => {
         console.error("Error:", error);
       });
-  };
+  };  
   return (
     <div className="product-card">
       <div className="product-card-content">
@@ -133,7 +108,7 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
           onClick={() => handleOpenProductDetails()}
           style={{ cursor: "pointer" }}
         >
-          <img src={product?.images[0].image} alt={product?.title} />
+          <img src={product?.images[0]} alt={product?.title} />
         </div>
         <div
           className="product-card-info"
@@ -173,7 +148,6 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
           className="add-to-cart-product-card"
           onClick={() => {
             setVariant(product?.variants?.[0]?.id);
-            // stopProgress();
             setIsVariantSelectorOpen(true);
           }}
         >
@@ -217,4 +191,4 @@ const ProductCard = ({ productname, setIsOpen, setproductName }: any) => {
   );
 };
 
-export default ProductCard;
+export default memo(ProductCard);

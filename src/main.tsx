@@ -12,13 +12,10 @@ define(
 
 
 function handlevalue() {
-  try {
-    window.onload = async () => {
+
+    // window.onload = async () => {
         let el = document.createElement("f22-plugin");
 		      document.body.appendChild(el)
-      }
-  } catch (error) {
-    console.error(error);
-  }
+
 }
 handlevalue();

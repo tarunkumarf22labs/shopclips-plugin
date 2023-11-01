@@ -9,6 +9,8 @@ export function mediaHandler(state: State, action: Action) {
         return { ...state, videolength: payload };
       case "SETToggle":
         return { ...state, ismute: !state.ismute };
+        case "SETTOKENS":
+          return { ...state , url : payload.url , token : payload.token }
     }
   }
 
