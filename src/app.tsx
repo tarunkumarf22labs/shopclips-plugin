@@ -61,11 +61,11 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
     try {
       const [storeResponse, clipsResponse] = await Promise.all([
         fetch(
-          `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=test-for-qa.myshopify.com&populate=deep`,
+          `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=${window.Shopify.shop}&populate=deep`,
           requestOptions
         ),
         fetch(
-          `https://shopify-shopclips.uakhui.easypanel.host/api/stores?filters[name][$contains]=test-for-qa.myshopify.com`,
+          `https://shopify-shopclips.uakhui.easypanel.host/api/stores?filters[name][$contains]=${window.Shopify.shop}`,
           requestOptions
         )
       ]);
@@ -78,7 +78,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
         url  :  clipsData?.data?.[0].attributes.name ,
         token :  clipsData?.data?.[0].attributes.borderColor
       }  })       
-      const storeValue = storeData.data.find( (data) => data.attributes.clips[0].url === "https://test-for-qa.myshopify.com/");
+      const storeValue = storeData.data.find( (data) => data.attributes.clips[0].url === window.location.href.split("?")[0]);
        console.log(storeValue);
       dataPrecessor(storeValue);
   
