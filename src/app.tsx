@@ -159,37 +159,6 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
             onLoadedMetadata={handleLoadedMetadata}
             autoPlay
           />
-
-          <div className="product-cards-container">
-            <div className="product-cards">
-              {data.productNames.map((data) => {
-                 
-                return (
-                  <ProductCard
-                    productname={data}
-                    setIsOpen={setIsOpen}
-                    setproductName={setproductName}
-                    token = {state?.token}
-                    url = {state?.url}
-                  />
-                );
-              })}
-            </div>
-          </div>
-          <div
-        className={`f22storiesdrawer ${isOpen ? "f22open" : ""}`}
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-        }}
-      >
-          <MemoizedStoryDrawer
-            productname={productName}
-            setIsOpen={setIsOpen}
-            isOpen={isOpen}
-            token = {state?.token}
-            url = {state?.url}
-          />
-          </div>
         </div>
       </div>
     );
