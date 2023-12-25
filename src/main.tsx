@@ -4,7 +4,7 @@ import './index.css'
 
 define(
 	"f22-plugin",
-	(el) => <App dataURL={(el.getAttribute("dataURL") || "")}  
+	(el) => <App dataURL={(el.getAttribute("dataURL ") || "")}  
 	/>,
 	["dataURL" ],
 	() => console.log("F22 Plugin cleanup")
