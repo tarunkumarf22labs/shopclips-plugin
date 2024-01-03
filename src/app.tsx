@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useEffect, useState, JSX, useReducer, useRef } from "uelements";
+import axios from "axios";
 import SmallComponent from "./Components/SmallComponent";
 import { mediaHandler } from "./reducers";
 import { Crossicon, Muteicon, UnMuteicon } from "./assets/Icons";
@@ -10,8 +11,8 @@ const mediaHandlerState = {
   toogleopen: false,
   videolength: null,
   ismute: false,
-  url : "",
-  token : ""
+  url: "",
+  token: "",
 };
 
 function App({ dataURL }: { dataURL: string }): JSX.Element {
@@ -21,7 +22,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const [data, setData] = useState({});
   const [isOpen, setIsOpen] = useState(false);
   const [productName, setproductName] = useState("");
-  const [mute, setmute] = useState(false)
+  const [mute, setmute] = useState(false);
   const handlePopup = (event: MouseEvent): void => {
     dispatch({
       type: "SETTOGGLE",
@@ -35,63 +36,84 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
     dispatch({ type: "SETVIDEOLENGTH", payload: video.duration });
   };
 
-
   function dataPrecessor(value) {
-    console.log(value  , "pappaappaapp");
-    
-    const Dvalue = value?.attributes?.clips[0]
-    const video = Dvalue?.video
-    const productNames = Dvalue?.tags?.map((data: any) => { 
-       console.log(value , "binidoini");
-      return data.handle
-    
-    });   
+    console.log(value, "pappaappaapp");
+
+    const Dvalue = value?.attributes?.clips[0];
+    const video = Dvalue?.video;
+    const productNames = Dvalue?.tags?.map((data: any) => {
+      console.log(value, "binidoini");
+      return data.handle;
+    });
     console.log(productNames);
-    setData({  productNames , video});
+    setData({ productNames, video });
   }
+
   async function handleData() {
-    const myHeaders = new Headers();
-    myHeaders.append("accept", "application/json");
-    myHeaders.append("Content-Type", "application/json");
-    const requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-    };
-  
     try {
-      const [storeResponse, clipsResponse] = await Promise.all([
-        fetch(
-          `https://shopify-shopclips.uakhui.easypanel.host/api/clips?filters[Store][$contains]=${window.Shopify.shop}&populate=deep`,
-          requestOptions
-        ),
-        fetch(
-          `https://shopify-shopclips.uakhui.easypanel.host/api/stores?filters[name][$contains]=${window.Shopify.shop}`,
-          requestOptions
-        )
-      ]);
-  
-      const storeData = await storeResponse.json();
-      const clipsData = await clipsResponse.json();
-       console.log(clipsData , "clipsData" , clipsData);
-       
-      dispatch({ type : "SETTOKENS" , payload : {
-        url  :  clipsData?.data?.[0].attributes.name ,
-        token :  clipsData?.data?.[0].attributes.borderColor
-      }  })       
-      const storeValue = storeData.data.find( (data) => data.attributes.clips[0].url === window.location.href.split("?")[0]);
-       console.log(storeValue);
+      const storeResponse = await axios.get(
+        `https://shopclips-shopclips-floatapp-dev.leiusn.easypanel.host/api/clips`,
+        {
+          params: {
+            "filters[Store][$contains]": window.Shopify.shop,
+            populate: "deep",
+          },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const clipsResponse = await axios.get(
+        `https://shopclips-shopclips-floatapp-dev.leiusn.easypanel.host/api/stores`,
+        {
+          params: {
+            "filters[name][$contains]": window.Shopify.shop,
+          },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!storeResponse.data || !clipsResponse.data) {
+        throw new Error("Failed to fetch data");
+      }
+
+      const storeData = storeResponse.data;
+      const clipsData = clipsResponse.data;
+
+      console.log(clipsData, "clipsData", clipsData);
+
+      dispatch({
+        type: "SETTOKENS",
+        payload: {
+          url: clipsData?.data?.[0]?.attributes?.name,
+          token: clipsData?.data?.[0]?.attributes?.borderColor,
+        },
+      });
+
+      const storeValue = storeData.data.find(
+        (data) =>
+          data.attributes.clips[0].url === window.location.href.split("?")[0]
+      );
+
+      console.log(storeValue);
+
       dataPrecessor(storeValue);
-  
+
       return {
         storeData: storeValue,
         clipsData: clipsData,
       };
     } catch (error) {
-      console.log(error);
+      console.error("Error in handleData:", error);
+      // Handle or propagate the error as needed
+      throw error;
     }
   }
-  
-
 
   useEffect(() => {
     handleData();
@@ -112,11 +134,11 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   const handleToogle = () => {
     const video = videoEl.current;
     if (!video) return;
-    setmute((prev) => !prev )
+    setmute((prev) => !prev);
     video.muted = !mute;
   };
 
-  if (!data?.video) return <></> 
+  if (!data?.video) return <></>;
 
   if (state.toogleopen) {
     return (
@@ -143,7 +165,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
                 </div>
               </div>
               <div className="muteop" onClick={handleToogle}>
-                {mute ? <UnMuteicon /> : <Muteicon /> }
+                {mute ? <UnMuteicon /> : <Muteicon />}
               </div>
               <div className="crossiconop" onClick={handlePopup}>
                 <Crossicon />
@@ -165,10 +187,7 @@ function App({ dataURL }: { dataURL: string }): JSX.Element {
   }
   return (
     <>
-      <SmallComponent
-        video={data?.video}
-        handlePopup={handlePopup}
-      />
+      <SmallComponent video={data?.video} handlePopup={handlePopup} />
     </>
   );
 }

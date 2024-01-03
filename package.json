@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.6.3",
     "draggable": "^4.2.0",
     "firebase": "^9.17.1",
     "preact": "^10.11.3",
