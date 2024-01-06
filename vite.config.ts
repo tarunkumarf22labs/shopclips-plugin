@@ -12,10 +12,10 @@ export default defineConfig({
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: resolve(  __dirname   , "src/main.tsx"),
-      name: "f22",
+      name: "float",
       formats: ["iife"],
       // the proper extensions will be added
-      fileName: "f22",
+      fileName: "float",
     },
   },
 });
